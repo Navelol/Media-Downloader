@@ -4,7 +4,8 @@ A simple GUI application for downloading media content using yt-dlp.
 
 ## Features
 
-- Download videos in MP4 format or audio in MP3 format
+- Download videos in multiple formats: MP4, MKV, WebM, AVI, MOV
+- Download audio in multiple formats: MP3, M4A, WAV, FLAC, Opus
 - Real-time progress tracking with speed and ETA
 - Support for single videos or playlists
 - Clean, easy-to-use interface
@@ -94,8 +95,13 @@ python src/media-downloader.py
 
 1. Paste a video URL
 2. Choose a save location
-3. Select your desired format (MP4 or MP3)
-4. Click Download
+3. Select download type (Video or Audio Only)
+4. Choose your desired format from the dropdown
+5. Click Download
+
+**Available Formats:**
+- **Video:** MP4, MKV, WebM, AVI, MOV
+- **Audio:** MP3, M4A, WAV, FLAC (lossless), Opus
 
 ## Legal Disclaimer
 
