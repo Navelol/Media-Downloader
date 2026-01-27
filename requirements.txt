@@ -1,0 +1,3 @@
+certifi
+yt-dlp
+FreeSimpleGUI
