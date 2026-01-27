@@ -31,13 +31,27 @@ python -m venv .venv
 ```
 
 3. Activate the virtual environment:
-- Windows: `.\.venv\Scripts\Activate.ps1`
-- Mac/Linux: `source .venv/bin/activate`
+
+**Windows (PowerShell):**
+```powershell
+.\.venv\Scripts\Activate.ps1
+```
+*Note: If you get an execution policy error, run:*
+```powershell
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+```
+
+**Mac/Linux:**
+```bash
+source .venv/bin/activate
+```
 
 4. Install dependencies:
 ```bash
-pip install FreeSimpleGUI yt-dlp certifi
+pip install -r requirements.txt
 ```
+
+You should see `(.venv)` at the beginning of your command prompt when the virtual environment is activated.
 
 ## Usage
 
