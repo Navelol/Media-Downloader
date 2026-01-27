@@ -1,5 +1,7 @@
 # Media Downloader
 
+<img width="677" height="405" alt="image" src="https://github.com/user-attachments/assets/f6302c9a-361e-40aa-aa95-9d61138ef2af" />
+
 A simple GUI application for downloading media content using yt-dlp.
 
 ## Features
