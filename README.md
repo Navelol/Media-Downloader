@@ -19,6 +19,29 @@ A simple GUI application for downloading media content using yt-dlp.
 
 ## Installation
 
+### Easy Installation (Windows - Recommended)
+
+1. **Download this repository:**
+   - Click the green "Code" button → "Download ZIP"
+   - Extract the ZIP file to a folder of your choice
+
+2. **Install Python** (if you don't have it):
+   - Download from [python.org](https://www.python.org/downloads/)
+   - **Important:** Check "Add Python to PATH" during installation
+
+3. **Run the installer:**
+   - Double-click `install.bat`
+   - Wait for it to finish (this sets up everything automatically)
+
+4. **Launch the application:**
+   - Double-click `run.bat` anytime you want to use the app
+
+That's it! No command line knowledge needed.
+
+---
+
+### Manual Installation (Mac/Linux or Advanced Users)
+
 1. Clone this repository:
 ```bash
 git clone https://github.com/Navelol/Media-Downloader.git
@@ -55,10 +78,19 @@ You should see `(.venv)` at the beginning of your command prompt when the virtua
 
 ## Usage
 
-Run the application:
+### Easy Launch (Windows)
+Simply double-click `run.bat` - the application will start automatically!
+
+### Manual Launch
+If you installed manually or are on Mac/Linux:
+
+1. Activate your virtual environment (if not already active)
+2. Run the application:
 ```bash
 python src/media-downloader.py
 ```
+
+### Using the Application
 
 1. Paste a video URL
 2. Choose a save location
