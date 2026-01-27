@@ -4,7 +4,7 @@ import threading
 import certifi
 os.environ["SSL_CERT_FILE"] = certifi.where()
 
-import PySimpleGUI as sg
+import FreeSimpleGUI as sg
 import yt_dlp
 
 
@@ -13,7 +13,7 @@ cancel_flag = False
 worker_thread = None
 
 
-def download(url: str, output_dir: str, audio_only: bool = False, no_playlist: bool = False, window=None) -> None:
+def download(url: str, output_dir: str, audio_only: bool = False, output_format: str = "mp4", no_playlist: bool = False, window=None) -> None:
     """
     Download media from URL using yt-dlp.
     Sends progress updates to the GUI window.
@@ -71,25 +71,27 @@ def download(url: str, output_dir: str, audio_only: bool = False, no_playlist: b
     }
 
     if audio_only:
+        # Audio extraction with specified format
         ydl_opts.update({
             "format": "bestaudio/best",
             "postprocessors": [{
                 "key": "FFmpegExtractAudio",
-                "preferredcodec": "mp3",
-                "preferredquality": "192",
+                "preferredcodec": output_format,
+                "preferredquality": "192" if output_format == "mp3" else "0",  # 0 = best quality for lossless
             }],
         })
     else:
+        # Video download with specified format
         ydl_opts.update({
             "format": "bv*+ba/best",
-            "merge_output_format": "mp4",  # Force MP4 container
+            "merge_output_format": output_format,  # Force specific container format
         })
 
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         ydl.download([url])
 
 
-def start_download_in_thread(url, folder, audio_only, no_playlist, window):
+def start_download_in_thread(url, folder, audio_only, output_format, no_playlist, window):
     """
     Run download() in a separate thread so the GUI stays responsive.
     When done (success or error), send an event back to the window.
@@ -98,7 +100,7 @@ def start_download_in_thread(url, folder, audio_only, no_playlist, window):
     cancel_flag = False
 
     try:
-        download(url, folder, audio_only, no_playlist, window)
+        download(url, folder, audio_only, output_format, no_playlist, window)
         window.write_event_value("-DOWNLOAD_DONE-", {"ok": True, "error": None})
     except Exception as e:
         window.write_event_value("-DOWNLOAD_DONE-", {"ok": False, "error": str(e)})
@@ -111,9 +113,11 @@ layout = [
     [sg.Text("Video URL:"), sg.InputText(key="-URL-", size=(50, 1))],
     [sg.Text("Save to:"),   sg.InputText(key="-FOLDER-", size=(40, 1)), sg.FolderBrowse()],
     [
+        sg.Text("Type:"),
+        sg.Combo(["Video", "Audio Only"], default_value="Video", key="-TYPE-", size=(15, 1), readonly=True, enable_events=True),
         sg.Text("Format:"),
-        sg.Radio("MP4", "FMT", default=True,  key="-MP4-"),
-        sg.Radio("MP3", "FMT", default=False, key="-MP3-"),
+        sg.Combo(["mp4", "mkv", "webm", "avi", "mov"], default_value="mp4", key="-VIDEO_FORMAT-", size=(15, 1), readonly=True),
+        sg.Combo(["mp3", "m4a", "wav", "flac", "opus"], default_value="mp3", key="-AUDIO_FORMAT-", size=(15, 1), readonly=True, visible=False),
     ],
     [
         sg.Checkbox("Download single video only (no playlist)", default=True, key="-NO_PLAYLIST-"),
@@ -150,7 +154,16 @@ while True:
     if event == "-DOWNLOAD-":
         url = values["-URL-"].strip()
         folder = values["-FOLDER-"] or os.getcwd()
-        audio_only = values["-MP3-"]
+        
+        # Get type and format from dropdowns
+        download_type = values["-TYPE-"]
+        audio_only = (download_type == "Audio Only")
+        
+        if audio_only:
+            output_format = values["-AUDIO_FORMAT-"]
+        else:
+            output_format = values["-VIDEO_FORMAT-"]
+        
         no_playlist = values["-NO_PLAYLIST-"]
 
         if not url:
@@ -175,7 +188,7 @@ while True:
                 continue
 
         window["-LOG-"].print(f"Starting download to: {folder}")
-        window["-LOG-"].print(f"Format: {'MP3 (audio only)' if audio_only else 'MP4 (video)'}")
+        window["-LOG-"].print(f"Type: {download_type} | Format: {output_format.upper()}")
         window["-LOG-"].print(f"Mode: {'Single video' if no_playlist else 'Playlist allowed'}")
         window["-LOG-"].print("-" * 70)
 
@@ -187,10 +200,19 @@ while True:
 
         worker_thread = threading.Thread(
             target=start_download_in_thread,
-            args=(url, folder, audio_only, no_playlist, window),
+            args=(url, folder, audio_only, output_format, no_playlist, window),
             daemon=False,  # Changed to False for better cleanup
         )
         worker_thread.start()
+
+    elif event == "-TYPE-":
+        # Show/hide appropriate format dropdown based on type
+        if values["-TYPE-"] == "Audio Only":
+            window["-VIDEO_FORMAT-"].update(visible=False)
+            window["-AUDIO_FORMAT-"].update(visible=True)
+        else:
+            window["-VIDEO_FORMAT-"].update(visible=True)
+            window["-AUDIO_FORMAT-"].update(visible=False)
 
     elif event == "-CANCEL-":
         if downloading:
