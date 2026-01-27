@@ -4,7 +4,7 @@ import threading
 import certifi
 os.environ["SSL_CERT_FILE"] = certifi.where()
 
-import FreeSimpleGUI as sg
+import PySimpleGUI as sg
 import yt_dlp
 
 
@@ -80,7 +80,10 @@ def download(url: str, output_dir: str, audio_only: bool = False, no_playlist: b
             }],
         })
     else:
-        ydl_opts["format"] = "bv*+ba/best"
+        ydl_opts.update({
+            "format": "bv*+ba/best",
+            "merge_output_format": "mp4",  # Force MP4 container
+        })
 
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         ydl.download([url])
